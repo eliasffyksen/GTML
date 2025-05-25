@@ -1,0 +1,23 @@
+<table role="grid">
+    <thead>
+        <tr>
+        {{- range $header := .Headers }}
+            <th>{{ $header }}</th>
+        {{- end }}
+        </tr>
+    </thead>
+
+    <tbody>
+    {{- range $row := .Rows }}
+        {{- $href := $row.Href }}
+        <tr {{ if $href }}data-href="{{ $href }}"{{ end }}>
+            {{- range $value := $row.Values}}
+            {{- $href := $value.Href }}
+            <td {{ if $href }}data-href="{{ $href }}"{{ end }}>
+                {{ $value.Value }}
+            </td>
+            {{- end }}
+        </tr>
+    {{- end }}
+    </tbody>
+</table>

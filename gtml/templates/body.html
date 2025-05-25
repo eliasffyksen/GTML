@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GTML</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" >
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <main>
+      {{ .Main }}
+    </main>
+
+
+    <style>
+      [data-href] {
+        cursor: pointer;
+      }
+    </style>
+
+    <script>
+      document.addEventListener('click', e => {
+        let current =  e.target;
+
+        while (current) {
+          let href = current.getAttribute('data-href');
+          if (href) {
+            window.location = href;
+            break;
+          }
+
+          current = current.parentElement;
+        }
+      })
+    </script>
+  </body>
+</html>
