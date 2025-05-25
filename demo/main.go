@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/eliasffyksen/gtml/gtml"
+	"github.com/eliasffyksen/GTML/gtml"
 )
 
 type Index struct {
