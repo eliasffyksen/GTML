@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"reflect"
+	"slices"
 )
 
 type SearchLink[T any] struct {
@@ -118,10 +119,10 @@ func searchInputs(link reflect.Value, target string) (template.HTML, error) {
 	for i := range reflect.VisibleFields(link.Type()) {
 		field := link.Type().Field(i)
 		fieldValue := link.Field(i)
-		tag := field.Tag
-		gtlmTag := tag.Get("gtlm")
 
-		if gtlmTag == "search" {
+		props := getGtmlProperties(field)
+
+		if slices.Contains(props, "search") {
 			descriptor := fmt.Sprintf("%s.%s", link.Type().Name(), field.Name)
 
 			fieldHtml, err := searchInput(descriptor, field.Name, fieldValue, target)

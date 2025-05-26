@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"maps"
 	"net/http"
 	"slices"
@@ -10,19 +11,28 @@ import (
 	"github.com/eliasffyksen/GTML/gtml"
 )
 
+type CustomHTML struct{}
+
+var _ gtml.HTMLer = CustomHTML{}
+
+func (ch CustomHTML) HTML() (template.HTML, error) {
+	return template.HTML("<span>this is a test</span>"), nil
+}
+
 type Index struct {
 	ShoppingLists gtml.SearchLink[ShoppingListSearch]
 	Products      []*Product
 }
 
 type ShoppingListSearch struct {
-	Name string `gtlm:"search"`
+	Name string `gtml:"search"`
 }
 
 type ShoppingList struct {
 	Name        string
 	Description string
 	Items       []Item
+	CustomHtml  CustomHTML `gtml:"table-hide"`
 }
 
 // Link implements gtml.Linker.

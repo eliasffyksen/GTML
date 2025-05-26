@@ -6,8 +6,13 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"slices"
 	"strings"
 )
+
+type HTMLer interface {
+	HTML() (template.HTML, error)
+}
 
 func linkToHtml(link any) template.HTML {
 	href := ""
@@ -39,6 +44,8 @@ func (r *Router) html(data any, fieldName string, req *http.Request) (template.H
 		return template.HTML(fmt.Sprintf("<p>%s</p>", template.HTMLEscapeString(v))), nil
 	case searchLinkGetter:
 		return r.searchHtml(fieldName, v.GetSearchLinkValue(), req)
+	case HTMLer:
+		return v.HTML()
 	}
 
 	value := reflect.ValueOf(data)
@@ -90,7 +97,7 @@ func sliceHtml(value reflect.Value) (template.HTML, error) {
 
 	rowType := value.Type().Elem()
 	tableData := TableData{
-		Headers: getHeaders(rowType),
+		Headers: getSliceHeaders(rowType),
 	}
 
 	for i := 0; i < value.Len(); i++ {
@@ -130,8 +137,13 @@ func getSliceTableRow(v reflect.Value) (TableRow, error) {
 		Href: href,
 	}
 
-	for field := range reflect.VisibleFields(t) {
-		fieldV := v.Field(field)
+	for _, field := range reflect.VisibleFields(t) {
+		fieldV := v.FieldByIndex(field.Index)
+		props := getGtmlProperties(field)
+		if slices.Contains(props, "table-hide") {
+			continue
+		}
+
 		fieldHref, err := getHref(fieldV)
 		if err != nil {
 			return TableRow{}, err
@@ -160,14 +172,19 @@ func getHref(v reflect.Value) (*string, error) {
 	return &value, nil
 }
 
-func getHeaders(t reflect.Type) []string {
+func getSliceHeaders(t reflect.Type) []string {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
 
 	headers := make([]string, 0)
-	for field := range reflect.VisibleFields(t) {
-		headers = append(headers, t.Field(field).Name)
+	for _, field := range reflect.VisibleFields(t) {
+		props := getGtmlProperties(field)
+		if slices.Contains(props, "table-hide") {
+			continue
+		}
+
+		headers = append(headers, field.Name)
 	}
 
 	return headers
